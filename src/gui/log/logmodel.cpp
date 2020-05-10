@@ -35,6 +35,7 @@
 #include <QPalette>
 
 #include "base/global.h"
+#include "gui/uithememanager.h"
 
 namespace
 {
