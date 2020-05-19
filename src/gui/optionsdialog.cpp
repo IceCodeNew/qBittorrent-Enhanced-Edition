@@ -1700,7 +1700,7 @@ QString OptionsDialog::webUiPassword() const
 void OptionsDialog::webUIHttpsCertChanged(const QString &path, const ShowError showError)
 {
     m_ui->textWebUIHttpsCert->setSelectedPath(path);
-    m_ui->lblSslCertStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/qbt-theme/security-low.svg", this, 24));
+    m_ui->lblSslCertStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/security-low.svg", this, 24));
 
     if (path.isEmpty())
         return;
@@ -1718,13 +1718,13 @@ void OptionsDialog::webUIHttpsCertChanged(const QString &path, const ShowError s
         return;
     }
 
-    m_ui->lblSslCertStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/qbt-theme/security-high.svg", this, 24));
+    m_ui->lblSslCertStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/security-high.svg", this, 24));
 }
 
 void OptionsDialog::webUIHttpsKeyChanged(const QString &path, const ShowError showError)
 {
     m_ui->textWebUIHttpsKey->setSelectedPath(path);
-    m_ui->lblSslKeyStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/qbt-theme/security-low.svg", this, 24));
+    m_ui->lblSslKeyStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/security-low.svg", this, 24));
 
     if (path.isEmpty())
         return;
@@ -1742,7 +1742,7 @@ void OptionsDialog::webUIHttpsKeyChanged(const QString &path, const ShowError sh
         return;
     }
 
-    m_ui->lblSslKeyStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/qbt-theme/security-high.svg", this, 24));
+    m_ui->lblSslKeyStatus->setPixmap(Utils::Gui::scaledPixmapSvg(":/icons/security-high.svg", this, 24));
 }
 
 void OptionsDialog::showConnectionTab()
