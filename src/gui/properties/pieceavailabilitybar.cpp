@@ -165,8 +165,3 @@ QString PieceAvailabilityBar::simpleToolTipText() const
            + rowHTML.arg(pieceColor().name(), borderColor, tr("Available pieces"))
            + QLatin1String("</table>");
 }
-
-bool PieceAvailabilityBar::isFileNameCorrectionNeeded() const
-{
-    return true;
-}
