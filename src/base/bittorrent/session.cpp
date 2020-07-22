@@ -2802,8 +2802,7 @@ void Session::generateResumeData(const bool final)
         if (!torrent->isValid()) continue;
 
         if (!final && !torrent->needSaveResumeData()) continue;
-        if (torrent->isChecking()
-            || torrent->isPaused()
+        if (torrent->isPaused()
             || torrent->hasError()
             || torrent->hasMissingFiles())
             continue;
