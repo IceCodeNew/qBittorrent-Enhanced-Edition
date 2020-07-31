@@ -87,6 +87,7 @@ PeerListWidget::PeerListWidget(PropertiesWidget *parent)
     setRootIsDecorated(false);
     setItemsExpandable(false);
     setAllColumnsShowFocus(true);
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     header()->setStretchLastSection(false);
     // List Model
@@ -399,7 +400,7 @@ void PeerListWidget::updatePeer(const BitTorrent::TorrentHandle *torrent, const 
     {
         const QMap<int, QVariant> data =
         {
-            {Qt::DisplayRole, displayData}, 
+            {Qt::DisplayRole, displayData},
             {PeerListSortModel::UnderlyingDataRole, underlyingData},
             {Qt::TextAlignmentRole, QVariant {textAlignmentData}},
             {Qt::ToolTipRole, toolTip}
