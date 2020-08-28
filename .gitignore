@@ -6,7 +6,7 @@ src/release
 src/debug
 CMakeLists.txt.user*
 qbittorrent.pro.user*
-conf.pri
+# conf.pri
 conf.pri.*
 Makefile*
 *.pyc
