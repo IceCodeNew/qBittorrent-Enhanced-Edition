@@ -55,7 +55,6 @@
 #include "base/utils/misc.h"
 #include "base/utils/string.h"
 #include "gui/uithememanager.h"
-#include "peerlistdelegate.h"
 #include "peerlistsortmodel.h"
 #include "peersadditiondialog.h"
 #include "propertieswidget.h"
@@ -98,7 +97,6 @@ PeerListWidget::PeerListWidget(PropertiesWidget *parent)
     m_listModel->setHeaderData(PeerListColumns::FLAGS, Qt::Horizontal, tr("Flags"));
     m_listModel->setHeaderData(PeerListColumns::CONNECTION, Qt::Horizontal, tr("Connection"));
     m_listModel->setHeaderData(PeerListColumns::CLIENT, Qt::Horizontal, tr("Client", "i.e.: Client application"));
-    m_listModel->setHeaderData(PeerListDelegate::PEERID, Qt::Horizontal, tr("Peer ID", "i.e.: Client Peer ID"));
     m_listModel->setHeaderData(PeerListColumns::PROGRESS, Qt::Horizontal, tr("Progress", "i.e: % downloaded"));
     m_listModel->setHeaderData(PeerListColumns::DOWN_SPEED, Qt::Horizontal, tr("Down Speed", "i.e: Download speed"));
     m_listModel->setHeaderData(PeerListColumns::UP_SPEED, Qt::Horizontal, tr("Up Speed", "i.e: Upload speed"));
@@ -145,8 +143,6 @@ PeerListWidget::PeerListWidget(PropertiesWidget *parent)
     // Context menu
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &PeerListWidget::showPeerListMenu);
-    // List delegate
-    setItemDelegate(new PeerListDelegate(this));
     // Enable sorting
     setSortingEnabled(true);
     // IP to Hostname resolver
@@ -304,13 +300,8 @@ void PeerListWidget::banSelectedPeers()
     for (const QModelIndex &index : selectedIndexes) {
         const int row = m_proxyModel->mapToSource(index).row();
         const QString ip = m_listModel->item(row, PeerListColumns::IP_HIDDEN)->text();
-        QString client = m_listModel->data(m_listModel->index(row, PeerListDelegate::CLIENT)).toString();
-        QString peerid = m_listModel->data(m_listModel->index(row, PeerListDelegate::PEERID)).toString();
-        QHostAddress host;
-        host.setAddress(ip);
-        const QString countryName = Net::GeoIPManager::CountryName(Net::GeoIPManager::instance()->lookup(host));
         BitTorrent::Session::instance()->banIP(ip);
-        LogMsg(tr("Peer \"%1\" is manually banned. PeerID: '%2' Client: '%3' Country Name: '%4'").arg(ip).arg(peerid).arg(client).arg(countryName));
+        LogMsg(tr("Peer \"%1\" is manually banned").arg(ip));
     }
     // Refresh list
     loadPeers(m_properties->getCurrentTorrent());
@@ -429,7 +420,6 @@ void PeerListWidget::updatePeer(const BitTorrent::TorrentHandle *torrent, const 
     setModelData(row, PeerListColumns::FLAGS, peer.flags(), peer.flags(), {}, peer.flagsDescription());
     const QString client = peer.client().toHtmlEscaped();
     setModelData(row, PeerListColumns::CLIENT, client, client);
-    m_listModel->setData(m_listModel->index(row, PeerListDelegate::PEERID), peer.pid().left(8).toHtmlEscaped());
     setModelData(row, PeerListColumns::PROGRESS, (Utils::String::fromDouble(peer.progress() * 100, 1) + '%'), peer.progress(), intDataTextAlignment);
     setModelData(row, PeerListColumns::DOWN_SPEED, Utils::Misc::friendlyUnit(peer.payloadDownSpeed(), 1), peer.payloadDownSpeed(), intDataTextAlignment);
     setModelData(row, PeerListColumns::UP_SPEED, Utils::Misc::friendlyUnit(peer.payloadUpSpeed(), true), peer.payloadUpSpeed(), intDataTextAlignment);
