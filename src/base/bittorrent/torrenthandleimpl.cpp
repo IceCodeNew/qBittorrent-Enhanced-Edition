@@ -1952,4 +1952,5 @@ QVector<qreal> TorrentHandleImpl::availableFileFractions() const
 void TorrentHandleImpl::enableIPFilter() const
 {
     m_nativeHandle.set_flags(lt::torrent_flags::apply_ip_filter);
+    m_nativeHandle.save_resume_data();
 }
