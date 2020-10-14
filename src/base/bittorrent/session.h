@@ -344,6 +344,8 @@ namespace BitTorrent
         void setPeerTurnoverInterval(int num);
         int asyncIOThreads() const;
         void setAsyncIOThreads(int num);
+        int hashingThreads() const;
+        void setHashingThreads(int num);
         int filePoolSize() const;
         void setFilePoolSize(int size);
         int checkingMemUsage() const;
@@ -695,6 +697,7 @@ namespace BitTorrent
         CachedSettingValue<bool> m_announceToAllTrackers;
         CachedSettingValue<bool> m_announceToAllTiers;
         CachedSettingValue<int> m_asyncIOThreads;
+        CachedSettingValue<int> m_hashingThreads;
         CachedSettingValue<int> m_filePoolSize;
         CachedSettingValue<int> m_checkingMemUsage;
         CachedSettingValue<int> m_diskCacheSize;

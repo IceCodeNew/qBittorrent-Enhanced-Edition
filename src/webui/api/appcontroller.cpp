@@ -282,6 +282,8 @@ void AppController::preferencesAction()
     // libtorrent preferences
     // Async IO threads
     data["async_io_threads"] = session->asyncIOThreads();
+    // Hashing threads
+    data["hashing_threads"] = session->hashingThreads();
     // File pool size
     data["file_pool_size"] = session->filePoolSize();
     // Checking memory usage
@@ -713,6 +715,9 @@ void AppController::setPreferencesAction()
     // Async IO threads
     if (hasKey("async_io_threads"))
         session->setAsyncIOThreads(it.value().toInt());
+    // Hashing threads
+    if (hasKey("hashing_threads"))
+        session->setHashingThreads(it.value().toInt());
     // File pool size
     if (hasKey("file_pool_size"))
         session->setFilePoolSize(it.value().toInt());
