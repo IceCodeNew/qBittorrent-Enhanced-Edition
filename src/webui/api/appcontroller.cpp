@@ -579,8 +579,11 @@ void AppController::setPreferencesAction()
     if (hasKey("max_ratio_act"))
         session->setMaxRatioAction(static_cast<MaxRatioAction>(it.value().toInt()));
     // Add trackers
-    session->setAddTrackersEnabled(m["add_trackers_enabled"].toBool());
-    session->setAdditionalTrackers(m["add_trackers"].toString());
+    if (hasKey("add_trackers_enabled"))
+        session->setAddTrackersEnabled(it.value().toBool());
+    if (hasKey("add_trackers"))
+        session->setAdditionalTrackers(it.value().toString());
+
     session->setAutoUpdateTrackersEnabled(m["auto_update_trackers_enabled"].toBool());
     if (m.contains("customize_trackers_list_url"))
         pref->setCustomizeTrackersListUrl(m["customize_trackers_list_url"].toString());
