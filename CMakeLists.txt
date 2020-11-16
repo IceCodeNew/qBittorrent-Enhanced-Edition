@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR) # Policies <= CMP0097 default t
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 project(qBittorrent
-    VERSION 4.3.2.0
+    VERSION 4.1.9.1
     DESCRIPTION "The qBittorrent BitTorrent client"
     HOMEPAGE_URL "https://www.qbittorrent.org/"
     LANGUAGES CXX
@@ -51,7 +51,7 @@ elseif (MSVC)
     feature_option(MSVC_RUNTIME_DYNAMIC "Use MSVC dynamic runtime library (-MD) instead of static (-MT)" ON)
 endif()
 
-set(QBT_VER_STATUS "alpha1" CACHE STRING "Project status version. Should be empty for release builds.")
+set(QBT_VER_STATUS "" CACHE STRING "Project status version. Should be empty for release builds.")
 
 include(GNUInstallDirs)
 add_subdirectory(src)
