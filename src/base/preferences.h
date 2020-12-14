@@ -27,8 +27,7 @@
  * exception statement from your version.
  */
 
-#ifndef PREFERENCES_H
-#define PREFERENCES_H
+#pragma once
 
 #include <QtContainerFwd>
 #include <QVariant>
@@ -411,5 +410,3 @@ public slots:
 
     void apply();
 };
-
-#endif // PREFERENCES_H
