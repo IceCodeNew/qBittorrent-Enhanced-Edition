@@ -5044,9 +5044,6 @@ void Session::handleStorageMovedAlert(const lt::storage_moved_alert *p)
     const QString torrentName = (torrent ? torrent->name() : QString {infoHash});
     LogMsg(tr("\"%1\" is successfully moved to \"%2\".").arg(torrentName, newPath));
 
-    if (torrent)
-        emit torrentStorageMoveFinished(torrent, newPath);
-
     handleMoveTorrentStorageJobFinished();
 }
 
@@ -5064,9 +5061,6 @@ void Session::handleStorageMovedFailedAlert(const lt::storage_moved_failed_alert
     const QString errorMessage = QString::fromStdString(p->message());
     LogMsg(tr("Failed to move \"%1\" from \"%2\" to \"%3\". Reason: %4.")
            .arg(torrentName, currentLocation, currentJob.path, errorMessage), Log::CRITICAL);
-
-    if (torrent)
-        emit torrentStorageMoveFailed(torrent, currentJob.path, errorMessage);
 
     handleMoveTorrentStorageJobFinished();
 }
