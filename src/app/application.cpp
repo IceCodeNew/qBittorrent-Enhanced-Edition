@@ -564,7 +564,7 @@ void Application::processParams(const QStringList &params)
     }
 #endif
     BitTorrent::AddTorrentParams torrentParams;
-    TriStateBool skipTorrentDialog;
+    std::optional<bool> skipTorrentDialog;
 
     for (QString param : params)
     {
@@ -580,7 +580,7 @@ void Application::processParams(const QStringList &params)
 
         if (param.startsWith(QLatin1String("@addPaused=")))
         {
-            torrentParams.addPaused = param.midRef(11).toInt() ? TriStateBool::True : TriStateBool::False;
+            torrentParams.addPaused = (param.midRef(11).toInt() != 0);
             continue;
         }
 
@@ -610,7 +610,7 @@ void Application::processParams(const QStringList &params)
 
         if (param.startsWith(QLatin1String("@skipDialog=")))
         {
-            skipTorrentDialog = param.midRef(12).toInt() ? TriStateBool::True : TriStateBool::False;
+            skipTorrentDialog = (param.midRef(12).toInt() != 0);
             continue;
         }
 
@@ -620,9 +620,7 @@ void Application::processParams(const QStringList &params)
         // be shown and skipTorrentDialog is undefined. The other is when
         // skipTorrentDialog is false, meaning that the application setting
         // should be overridden.
-        const bool showDialogForThisTorrent =
-            ((AddNewTorrentDialog::isEnabled() && skipTorrentDialog == TriStateBool::Undefined)
-             || skipTorrentDialog == TriStateBool::False);
+        const bool showDialogForThisTorrent = !skipTorrentDialog.value_or(!AddNewTorrentDialog::isEnabled());
         if (showDialogForThisTorrent)
             AddNewTorrentDialog::show(param, torrentParams, m_window);
         else

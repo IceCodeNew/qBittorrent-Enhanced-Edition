@@ -73,7 +73,6 @@ add_library(qbt_base STATIC
     settingsstorage.h
     torrentfileguard.h
     torrentfilter.h
-    tristatebool.h
     types.h
     unicodestrings.h
     utils/bytearray.h
@@ -153,7 +152,6 @@ add_library(qbt_base STATIC
     settingsstorage.cpp
     torrentfileguard.cpp
     torrentfilter.cpp
-    tristatebool.cpp
     utils/bytearray.cpp
     utils/foreignapps.cpp
     utils/fs.cpp
