@@ -1897,35 +1897,57 @@ void MainWindow::on_actionDownloadFromURL_triggered()
 }
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-void MainWindow::handleUpdateCheckFinished(bool updateAvailable, QString newVersion, QString newContent, QString nextUpdate, bool invokedByUser)
+void MainWindow::handleUpdateCheckFinished(const bool updateAvailable, const QString &newVersion, QString newContent, QString nextUpdate, const bool invokedByUser)
 {
-    QMessageBox::StandardButton answer = QMessageBox::Yes;
-    if (updateAvailable)
-    {
-        answer = QMessageBox::question(this, tr("qBittorrent Update Available")
-            , tr("A new version is available.") + "<br/>"
-                + tr("Do you want to download %1?<br/><br/>%2").arg(newVersion).arg(newContent) + "<br/><br/>"
-                + QString::fromLatin1("<a href=\"https://www.qbittorrent.org/news.php\">%1</a>").arg(tr("Open changelog..."))
-            , QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-        if (answer == QMessageBox::Yes)
-        {
-            // The user want to update, let's download the update
-            ProgramUpdater *updater = dynamic_cast<ProgramUpdater * >(sender());
-            updater->updateProgram();
-        }
-    }
-    else if (invokedByUser)
-    {
-        QMessageBox::information(this, tr("qBittorrent"),
-                                 tr("No updates available.\nYou are already using the latest version.\n%1").arg(nextUpdate));
-    }
-    sender()->deleteLater();
     m_ui->actionCheckForUpdates->setEnabled(true);
     m_ui->actionCheckForUpdates->setText(tr("&Check for Updates"));
     m_ui->actionCheckForUpdates->setToolTip(tr("Check for program updates"));
-    // Don't bother the user again in this session if he chose to ignore the update
-    if (Preferences::instance()->isUpdateCheckEnabled() && (answer == QMessageBox::Yes))
-        m_programUpdateTimer->start();
+
+    QObject *signalSender = sender();
+
+    if (updateAvailable)
+    {
+        const QString msg {tr("A new version is available.") + "<br/>"
+            + tr("Do you want to download %1?<br/><br/>%2").arg(newVersion).arg(newContent) + "<br/><br/>"
+            + QString::fromLatin1("<a href=\"https://www.qbittorrent.org/news.php\">%1</a>").arg(tr("Open changelog..."))};
+        auto *msgBox = new QMessageBox {QMessageBox::Question, tr("qBittorrent Update Available"), msg
+            , (QMessageBox::Yes | QMessageBox::No), this};
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
+        msgBox->setAttribute(Qt::WA_ShowWithoutActivating);
+        msgBox->setDefaultButton(QMessageBox::Yes);
+        connect(msgBox, &QMessageBox::buttonClicked, this, [this, msgBox, signalSender](QAbstractButton *button)
+        {
+            if (msgBox->buttonRole(button) == QMessageBox::YesRole)
+            {
+                // The user want to update, let's download the update
+                auto *updater = dynamic_cast<ProgramUpdater *>(signalSender);
+                updater->updateProgram();
+            }
+            else
+            {
+                if (Preferences::instance()->isUpdateCheckEnabled())
+                    m_programUpdateTimer->start();
+            }
+
+            signalSender->deleteLater();
+        });
+        msgBox->open();
+    }
+    else if (invokedByUser)
+    {
+        auto *msgBox = new QMessageBox {QMessageBox::Information, QLatin1String("qBittorrent")
+            , tr("No updates available.\nYou are already using the latest version.\n%1").arg(nextUpdate)
+            , QMessageBox::Ok, this};
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
+        connect(msgBox, &QDialog::finished, this, [this, signalSender](const int)
+        {
+            if (Preferences::instance()->isUpdateCheckEnabled())
+                m_programUpdateTimer->start();
+
+            signalSender->deleteLater();
+        });
+        msgBox->open();
+    }
 }
 #endif
 
