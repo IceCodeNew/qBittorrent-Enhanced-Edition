@@ -654,8 +654,8 @@ namespace BitTorrent
         void createTorrent(const lt::torrent_handle &nativeHandle);
 
         void saveResumeData();
-        void saveTorrentsQueue();
-        void removeTorrentsQueue();
+        void saveTorrentsQueue() const;
+        void removeTorrentsQueue() const;
 
         void populatePublicTrackers();
 
