@@ -5,9 +5,9 @@
 # Sets the QT_QMAKE variable to the path of Qt5 qmake if found.
 # --------------------------------------
 AC_DEFUN([FIND_QT5],
-[PKG_CHECK_EXISTS([Qt5Core >= 5.11],
+[PKG_CHECK_EXISTS([Qt5Core >= 5.12],
                  [PKG_CHECK_VAR(QT_QMAKE,
-                                [Qt5Core >= 5.11],
+                                [Qt5Core >= 5.12],
                                 [host_bins])
                  ])
 
@@ -18,23 +18,19 @@ AS_IF([test -f "$QT_QMAKE/qmake"],
                              [QT_QMAKE=""])
               ])
 
-AC_MSG_CHECKING([for Qt5 qmake >= 5.11])
+AC_MSG_CHECKING([for Qt5 qmake >= 5.12])
 AS_IF([test "x$QT_QMAKE" != "x"],
-      [AC_MSG_RESULT([$QT_QMAKE])],
-      [AC_MSG_RESULT([not found])]
-      )
 ])
-
 # FIND_QTDBUS()
 # Sets the HAVE_QTDBUS variable to true or false.
 # --------------------------------------
 AC_DEFUN([FIND_QTDBUS],
+<<<<<<< HEAD
        [AC_MSG_CHECKING([for Qt5DBus >= 5.11])
        PKG_CHECK_EXISTS([Qt5DBus >= 5.11],
-                        [AC_MSG_RESULT([found])
+=======
                          HAVE_QTDBUS=[true]],
                         [AC_MSG_RESULT([not found])
-                         HAVE_QTDBUS=[false]])
 ])
 
 # DETECT_CPP17_PROGRAM()
