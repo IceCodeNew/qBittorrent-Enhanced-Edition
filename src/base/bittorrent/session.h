@@ -62,7 +62,6 @@ class QUrl;
 class BandwidthScheduler;
 class FileSearcher;
 class FilterParserThread;
-class ResumeDataSavingManager;
 class Statistics;
 
 // These values should remain unchanged when adding new items
@@ -96,6 +95,7 @@ namespace BitTorrent
 {
     class InfoHash;
     class MagnetUri;
+    class ResumeDataStorage;
     class Torrent;
     class TorrentImpl;
     class Tracker;
@@ -585,7 +585,7 @@ namespace BitTorrent
         bool hasPerTorrentRatioLimit() const;
         bool hasPerTorrentSeedingTimeLimit() const;
 
-        void initResumeFolder();
+        void initResumeDataStorage();
 
         // Session configuration
         Q_INVOKABLE void configure();
@@ -611,7 +611,6 @@ namespace BitTorrent
         void applyOSMemoryPriority() const;
 #endif
 
-        bool loadTorrentResumeData(const QByteArray &data, const TorrentInfo &metadata, LoadTorrentParams &torrentParams);
         bool loadTorrent(LoadTorrentParams params);
         LoadTorrentParams initLoadTorrentParams(const AddTorrentParams &addTorrentParams);
         bool addTorrent_impl(const std::variant<MagnetUri, TorrentInfo> &source, const AddTorrentParams &addTorrentParams);
@@ -789,7 +788,7 @@ namespace BitTorrent
         QPointer<Tracker> m_tracker;
         // fastresume data writing thread
         QThread *m_ioThread = nullptr;
-        ResumeDataSavingManager *m_resumeDataSavingManager = nullptr;
+        ResumeDataStorage *m_resumeDataStorage = nullptr;
         FileSearcher *m_fileSearcher = nullptr;
 
         QSet<TorrentID> m_downloadedMetadata;
