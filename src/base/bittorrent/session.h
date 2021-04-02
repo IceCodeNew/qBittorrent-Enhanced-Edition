@@ -52,7 +52,6 @@
 #include "torrentinfo.h"
 #include "trackerentry.h"
 
-class QFile;
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 class QNetworkConfiguration;
 class QNetworkConfigurationManager;
@@ -778,8 +777,6 @@ namespace BitTorrent
         int m_extraLimit = 0;
         QVector<TrackerEntry> m_additionalTrackerList;
         QVector<TrackerEntry> m_publicTrackerList;
-        QString m_resumeFolderPath;
-        QFile *m_resumeFolderLock = nullptr;
 
         bool m_refreshEnqueued = false;
         QTimer *m_seedingLimitTimer = nullptr;
@@ -790,7 +787,7 @@ namespace BitTorrent
         QPointer<BandwidthScheduler> m_bwScheduler;
         // Tracker
         QPointer<Tracker> m_tracker;
-        // fastresume data writing thread
+
         QThread *m_ioThread = nullptr;
         ResumeDataStorage *m_resumeDataStorage = nullptr;
         FileSearcher *m_fileSearcher = nullptr;
