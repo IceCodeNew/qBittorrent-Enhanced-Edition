@@ -28,7 +28,6 @@ nogui {
         QT += winextras
     }
     macx {
-        QT += macextras
         LIBS += -lobjc
     }
 }
