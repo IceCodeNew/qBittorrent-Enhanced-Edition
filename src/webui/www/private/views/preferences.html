@@ -943,6 +943,14 @@
             </tr>
             <tr>
                 <td>
+                    <label for="reannounceWhenAddressChanged">QBT_TR(Reannounce to all trackers when IP or port changed:)QBT_TR[CONTEXT=OptionsDialog]</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="reannounceWhenAddressChanged" />
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <label for="enableEmbeddedTracker">QBT_TR(Enable embedded tracker:)QBT_TR[CONTEXT=OptionsDialog]</label>
                 </td>
                 <td>
@@ -1922,6 +1930,7 @@
                         $('resolvePeerCountries').setProperty('checked', pref.resolve_peer_countries);
                         $('autoBanUnknownPeer').setProperty('checked', pref.auto_ban_unknown_peer);
                         $('autoBanBittorrentPlayer').setProperty('checked', pref.auto_ban_bt_player_peer);
+                        $('reannounceWhenAddressChanged').setProperty('checked', pref.reannounce_when_address_changed);
                         // libtorrent section
                         $('asyncIOThreads').setProperty('value', pref.async_io_threads);
                         $('hashingThreads').setProperty('value', pref.hashing_threads);
@@ -2314,6 +2323,7 @@
             settings.set('resolve_peer_countries', $('resolvePeerCountries').getProperty('checked'));
             settings.set('auto_ban_unknown_peer', $('autoBanUnknownPeer').getProperty('checked'));
             settings.set('auto_ban_bt_player_peer', $('autoBanBittorrentPlayer').getProperty('checked'));
+            settings.set('reannounce_when_address_changed', $('reannounceWhenAddressChanged').getProperty('checked'));
 
             // libtorrent section
             settings.set('async_io_threads', $('asyncIOThreads').getProperty('value'));
