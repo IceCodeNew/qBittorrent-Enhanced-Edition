@@ -74,6 +74,7 @@
 #include "base/logger.h"
 #include "base/net/downloadmanager.h"
 #include "base/net/proxyconfigurationmanager.h"
+#include "base/preferences.h"
 #include "base/profile.h"
 #include "base/torrentfileguard.h"
 #include "base/torrentfilter.h"
@@ -95,6 +96,8 @@
 #include "ltunderlyingtype.h"
 #include "magneturi.h"
 #include "nativesessionextension.h"
+#include "peer_blacklist.hpp"
+#include "peer_filter_session_plugin.hpp"
 #include "portforwarderimpl.h"
 #include "statistics.h"
 #include "torrentimpl.h"
@@ -442,6 +445,10 @@ Session::Session(QObject *parent)
                         }
                  )
     , m_resumeDataStorageType(BITTORRENT_SESSION_KEY("ResumeDataStorageType"), ResumeDataStorageType::Legacy)
+    , m_publicTrackers(BITTORRENT_SESSION_KEY("PublicTrackersList"))
+    , m_autoBanUnknownPeer(BITTORRENT_SESSION_KEY("AutoBanUnknownPeer"), false)
+    , m_autoBanBTPlayerPeer(BITTORRENT_SESSION_KEY("AutoBanBTPlayerPeer"), false)
+    , m_isAutoUpdateTrackersEnabled(BITTORRENT_SESSION_KEY("AutoUpdateTrackersEnabled"), false)
 #if defined(Q_OS_WIN)
     , m_OSMemoryPriority(BITTORRENT_KEY("OSMemoryPriority"), OSMemoryPriority::BelowNormal)
 #endif
@@ -485,6 +492,7 @@ Session::Session(QObject *parent)
     enqueueRefresh();
     updateSeedingLimitTimer();
     populateAdditionalTrackers();
+    populatePublicTrackers();
 
     enableTracker(isTrackerEnabled());
 
@@ -520,6 +528,15 @@ Session::Session(QObject *parent)
     new PortForwarderImpl {m_nativeSession};
 
     initMetrics();
+
+    // Update Tracker
+    m_updateTimer = new QTimer(this);
+    m_updateTimer->setInterval(86400*1000);
+    connect(m_updateTimer, &QTimer::timeout, this, &Session::updatePublicTracker);
+    if (isAutoUpdateTrackersEnabled()) {
+        updatePublicTracker();
+        m_updateTimer->start();
+    }
 }
 
 bool Session::isDHTEnabled() const
@@ -925,6 +942,54 @@ void Session::setTrackerEnabled(const bool enabled)
     enableTracker(enabled);
 }
 
+bool Session::isAutoUpdateTrackersEnabled() const
+{
+    return m_isAutoUpdateTrackersEnabled;
+}
+
+void Session::setAutoUpdateTrackersEnabled(bool enabled)
+{
+    m_isAutoUpdateTrackersEnabled = enabled;
+
+    if(!enabled) {
+        m_updateTimer->stop();
+    } else {
+        m_updateTimer->start();
+        updatePublicTracker();
+    }
+}
+
+QString Session::publicTrackers() const
+{
+    return m_publicTrackers;
+}
+
+void Session::setPublicTrackers(const QString &trackers)
+{
+    if (trackers != publicTrackers()) {
+        m_publicTrackers = trackers;
+        populatePublicTrackers();
+    }
+}
+
+void Session::updatePublicTracker()
+{
+    Preferences *const pref = Preferences::instance();
+    Net::DownloadManager::instance()->download({pref->customizeTrackersListUrl()}, this, &Session::handlePublicTrackerTxtDownloadFinished);
+}
+
+void Session::handlePublicTrackerTxtDownloadFinished(const Net::DownloadResult &result)
+{
+    switch (result.status) {
+        case Net::DownloadStatus::Success:
+            setPublicTrackers(QString::fromUtf8(result.data.data()));
+            Logger::instance()->addMessage("The public tracker list updated.", Log::INFO);
+            break;
+        default:
+            Logger::instance()->addMessage("Updating the public tracker list failed: " + result.errorString, Log::WARNING);
+    }
+}
+
 qreal Session::globalMaxRatio() const
 {
     return m_globalMaxRatio;
@@ -1107,6 +1172,17 @@ void Session::initializeNativeSession()
     m_nativeSession->add_extension(&lt::create_ut_metadata_plugin);
     if (isPeXEnabled())
         m_nativeSession->add_extension(&lt::create_ut_pex_plugin);
+
+    // Enhanced features
+    db_connection::instance().init(QDir(specialFolderLocation(SpecialFolder::Data)).absoluteFilePath("peers.db"));
+    m_nativeSession->add_extension(&create_drop_bad_peers_plugin);
+    if (isAutoBanUnknownPeerEnabled()) {
+        m_nativeSession->add_extension(&create_drop_unknown_peers_plugin);
+        m_nativeSession->add_extension(&create_drop_offline_downloader_plugin);
+    }
+    if (isAutoBanBTPlayerPeerEnabled())
+        m_nativeSession->add_extension(&create_drop_bittorrent_media_player_plugin);
+    m_nativeSession->add_extension(std::make_shared<peer_filter_session_plugin>());
 
     m_nativeSession->add_extension(std::make_shared<NativeSessionExtension>());
 }
@@ -1595,6 +1671,18 @@ void Session::populateAdditionalTrackers()
         tracker = tracker.trimmed();
         if (!tracker.isEmpty())
             m_additionalTrackerList.append({tracker.toString()});
+    }
+}
+
+void Session::populatePublicTrackers()
+{
+    m_publicTrackerList.clear();
+
+    const QString trackers = publicTrackers();
+    for (QStringRef tracker : asConst(trackers.splitRef('\n'))) {
+        tracker = tracker.trimmed();
+        if (!tracker.isEmpty())
+            m_publicTrackerList.append({tracker.toString()});
     }
 }
 
@@ -3777,6 +3865,32 @@ void Session::setTrackerFilteringEnabled(const bool enabled)
     }
 }
 
+bool Session::isAutoBanUnknownPeerEnabled() const
+{
+    return m_autoBanUnknownPeer;
+}
+
+void Session::setAutoBanUnknownPeer(bool value)
+{
+    if (value != isAutoBanUnknownPeerEnabled()) {
+        m_autoBanUnknownPeer = value;
+        LogMsg(tr("Restart is required to toggle Auto Ban Unknown Client support"), Log::WARNING);
+    }
+}
+
+bool Session::isAutoBanBTPlayerPeerEnabled() const
+{
+    return m_autoBanBTPlayerPeer;
+}
+
+void Session::setAutoBanBTPlayerPeer(bool value)
+{
+    if (value != isAutoBanBTPlayerPeerEnabled()) {
+        m_autoBanBTPlayerPeer = value;
+        LogMsg(tr("Restart is required to toggle Auto Ban Bittorrent Media Player support"), Log::WARNING);
+    }
+}
+
 bool Session::isListening() const
 {
     return m_nativeSession->is_listening();
@@ -4471,6 +4585,9 @@ void Session::createTorrent(const lt::torrent_handle &nativeHandle)
 
         if (isAddTrackersEnabled() && !torrent->isPrivate())
             torrent->addTrackers(m_additionalTrackerList);
+
+        if (isAutoUpdateTrackersEnabled() && !torrent->isPrivate())
+            torrent->addTrackers(m_publicTrackerList);
 
         LogMsg(tr("'%1' added to download list.", "'torrent name' was added to download list.")
             .arg(torrent->name()));

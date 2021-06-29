@@ -88,6 +88,16 @@ QString ProgramUpdater::getNewVersion() const
     return m_newVersion;
 }
 
+QString ProgramUpdater::getNewContent() const
+{
+  return m_content;
+}
+
+QString ProgramUpdater::getNextUpdate() const
+{
+  return m_nextUpdate;
+}
+
 void ProgramUpdater::rssDownloadFinished(const Net::DownloadResult &result)
 {
     if (result.status != Net::DownloadStatus::Success)
@@ -117,6 +127,8 @@ void ProgramUpdater::rssDownloadFinished(const Net::DownloadResult &result)
 
     bool inItem = false;
     QString version;
+    QString content;
+    QString nextUpdate;
     QString updateLink;
     QString type;
     QXmlStreamReader xml(result.data);
@@ -135,6 +147,10 @@ void ProgramUpdater::rssDownloadFinished(const Net::DownloadResult &result)
                 type = getStringValue(xml);
             else if (inItem && (xml.name() == QLatin1String("version")))
                 version = getStringValue(xml);
+            else if (inItem && xml.name() == "content")
+                content = getStringValue(xml);
+            else if (inItem && xml.name() == "update")
+                nextUpdate = getStringValue(xml);
         }
         else if (xml.isEndElement())
         {
@@ -150,7 +166,9 @@ void ProgramUpdater::rssDownloadFinished(const Net::DownloadResult &result)
                         {
                             m_newVersion = version;
                             m_updateURL = updateLink;
+                            m_content = content;
                         }
+                        m_nextUpdate = nextUpdate;
                     }
                     break;
                 }
@@ -159,6 +177,8 @@ void ProgramUpdater::rssDownloadFinished(const Net::DownloadResult &result)
                 updateLink.clear();
                 type.clear();
                 version.clear();
+                content.clear();
+                nextUpdate.clear();
             }
         }
     }

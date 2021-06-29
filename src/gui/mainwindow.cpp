@@ -1942,8 +1942,9 @@ void MainWindow::handleUpdateCheckFinished(ProgramUpdater *updater, const bool i
     const QString newVersion = updater->getNewVersion();
     if (!newVersion.isEmpty())
     {
+        const QString content = updater->getNewContent();
         const QString msg {tr("A new version is available.") + "<br/>"
-            + tr("Do you want to download %1?").arg(newVersion) + "<br/><br/>"
+            + tr("Do you want to download %1?%2").arg(newVersion).arg(content) + "<br/><br/>"
             + QString::fromLatin1("<a href=\"https://www.qbittorrent.org/news.php\">%1</a>").arg(tr("Open changelog..."))};
         auto *msgBox = new QMessageBox {QMessageBox::Question, tr("qBittorrent Update Available"), msg
             , (QMessageBox::Yes | QMessageBox::No), this};
@@ -1964,8 +1965,9 @@ void MainWindow::handleUpdateCheckFinished(ProgramUpdater *updater, const bool i
     {
         if (invokedByUser)
         {
+            const QString nextUpdate = updater->getNextUpdate();
             auto *msgBox = new QMessageBox {QMessageBox::Information, QLatin1String("qBittorrent")
-                , tr("No updates available.\nYou are already using the latest version.")
+                , tr("No updates available.\nYou are already using the latest version.\n\n%1").arg(nextUpdate)
                 , QMessageBox::Ok, this};
             msgBox->setAttribute(Qt::WA_DeleteOnClose);
             connect(msgBox, &QDialog::finished, this, cleanup);

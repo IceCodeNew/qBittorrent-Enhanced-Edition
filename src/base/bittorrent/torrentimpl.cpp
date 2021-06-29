@@ -961,6 +961,8 @@ void TorrentImpl::updateState()
             m_state = TorrentState::PausedDownloading;
         else if (m_session->isQueueingSystemEnabled() && isQueued())
             m_state = TorrentState::QueuedDownloading;
+        else if (m_nativeStatus.state == lt::torrent_status::downloading_metadata) // must come after queue check
+            m_state = TorrentState::DownloadingMetadata;
         else if (isForced())
             m_state = TorrentState::ForcedDownloading;
         else if (m_nativeStatus.download_payload_rate > 0)

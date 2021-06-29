@@ -31,6 +31,7 @@
 #include <QDialog>
 
 #include "base/settingvalue.h"
+#include "base/net/downloadmanager.h"
 
 class QCloseEvent;
 class QListWidgetItem;
@@ -113,6 +114,8 @@ private slots:
     void setLocale(const QString &localeStr);
     void webUIHttpsCertChanged(const QString &path, ShowError showError);
     void webUIHttpsKeyChanged(const QString &path, ShowError showError);
+    void on_fetchButton_clicked();
+    void handlePublicTrackersListChanged(const Net::DownloadResult &result);
 
 private:
     // Methods
